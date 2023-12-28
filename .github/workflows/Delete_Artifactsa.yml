@@ -1,0 +1,48 @@
+name: Delete Artifacts
+
+on:
+  workflow_dispatch:
+    inputs:
+      repo_owner:
+        description: 'The owner of the repository.'
+        required: true
+      repo_name:
+        description: 'Repository Name'
+        required: true
+      secret_token:
+        description: 'A secret token.'
+        required: true
+  push:
+    branches:
+      - main
+
+jobs:
+  delete_artifacts:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.8
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install requests tqdm
+
+    - name: Create directory for repository
+      run: mkdir ./DeleteAllArtifacts
+
+    - name: Clone repository with script
+      run: git clone https://github.com/middle1/DeleteAllArtifacts ./DeleteAllArtifacts
+      working-directory: ./DeleteAllArtifacts
+
+    - name: Run Python script
+      run: |
+        python ./DeleteAllArtifacts/DeleteAllArtifacts/delete_all_artifacts_for_git_actions.py \
+          "${{ github.event.inputs.repo_owner }}" \
+          "${{ github.event.inputs.repo_name }}" \
+          "${{ github.event.inputs.secret_token }}"
